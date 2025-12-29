@@ -25,7 +25,7 @@ export const placeOrder = async (req: FastifyRequest,
             data: {
                 userId: user?.id,
                 orderId: order.id,
-                wsUrl: `/ws/orders/${order.id}`,
+                wsUrl: `/api/ws/orders/${order.id}`,
             }
           });
     }catch(err) {

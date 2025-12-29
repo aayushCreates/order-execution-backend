@@ -1,4 +1,4 @@
-import { PrismaClient } from "../generated/client";
+import { PrismaClient } from "@prisma/client";
 import orderQueue from "../queues/order.queue";
 import { CreatedOrder } from "../types/order.types";
 

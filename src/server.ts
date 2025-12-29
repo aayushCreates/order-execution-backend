@@ -1,22 +1,28 @@
-import dotenv from 'dotenv';
-import cors from "@fastify/cors";
-import { orderRouter} from './routes/order.routes';
-import { authRouter } from './routes/auth.routes';
-import fastify from 'fastify';
-
-const app = fastify({
-    logger: true
-});
-
+import dotenv from "dotenv";
 dotenv.config();
 
+import cors from "@fastify/cors";
+import { orderRouter } from "./routes/order.routes";
+import { authRouter } from "./routes/auth.routes";
+import fastify from "fastify";
+import websocket from "@fastify/websocket";
+
+import "./workers/order.worker";
+import { wsRouter } from "./routes/ws.routes";
+
+const app = fastify({
+  logger: true,
+});
+
 app.register(cors, {
-    origin: ["http://localhost:3000", "http://localhost:3030"],
-  });
+  origin: ["http://localhost:3000", "http://localhost:3030"],
+});
 
+app.register(websocket);
 
-app.register(authRouter, { prefix: '/api/auth' });
-app.register(orderRouter, { prefix: '/api/orders' });
+app.register(authRouter, { prefix: "/api/auth" });
+app.register(orderRouter, { prefix: "/api/orders" });
+app.register(wsRouter, { prefix: "/api/ws/orders" });
 
 const port = Number(process.env.PORT) || 8080;
 

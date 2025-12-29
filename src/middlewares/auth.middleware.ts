@@ -1,5 +1,5 @@
 import { validateToken } from "../utils/auth.utils";
-import { PrismaClient } from "../generated/client";
+import { PrismaClient } from "@prisma/client";
 import { FastifyReply, FastifyRequest } from "fastify";
 
 const prisma = new PrismaClient();

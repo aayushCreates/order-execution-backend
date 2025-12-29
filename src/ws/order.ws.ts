@@ -1,6 +1,6 @@
 import { redisPub } from "../config/redis.config";
 
-const publishOrderEvent = async (
+export const publishOrderEvent = async (
     orderId: string,
     status: string,
     data?: any
@@ -11,4 +11,3 @@ const publishOrderEvent = async (
     );
   }
 
-export default publishOrderEvent;
