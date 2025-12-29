@@ -1,0 +1,133 @@
+import { Request, Response, NextFunction } from "express";
+import { getJWT, getPasswordHash, validatePassword } from "../utils/auth.utils";
+import { PrismaClient } from "../generated/client";
+
+const prisma = new PrismaClient();
+
+export const register = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { name, email, phone, password } = req.body;
+
+    if (!name || !email || !phone || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter the required fields",
+      });
+    }
+
+    const hashedPassword = (await getPasswordHash(password)) as string;
+
+    const newUser = await prisma.user.create({
+      data: {
+        name: name,
+        email: email,
+        phone: phone,
+        password: hashedPassword,
+      },
+    });
+
+    const jwt = await getJWT(newUser?.id as string, newUser?.email as string);
+
+    res.status(200).json({
+      success: true,
+      message: "User registered successfully",
+      data: {
+        id: newUser?.id,
+        name: name,
+        phone: phone,
+        email: email,
+      },
+      token: jwt,
+    });
+  } catch (err) {
+    console.log("Error in the register user controller");
+    return res.status(500).json({
+      success: false,
+      message: "Server Error in registeration of user, please try again",
+    });
+  }
+};
+
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter the required fields",
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Credentials",
+      });
+    }
+
+    const isValidPassword = await validatePassword(
+      password,
+      user?.password as string
+    );
+
+    if (!isValidPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Credentials",
+      });
+    }
+
+    const jwt = await getJWT(user?.id as string, user?.email as string);
+
+    res.status(200).json({
+      success: true,
+      message: "User logged in successfully",
+      data: {
+        id: user?.id,
+        name: user?.name,
+        email: email,
+        phone: user?.phone
+      },
+      token: jwt,
+    });
+  } catch (err) {
+    console.log("Error in the login user controller");
+    return res.status(500).json({
+      success: false,
+      message: "Server Error in loggedin user, please try again",
+    });
+  }
+};
+
+export const logout = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    res.status(200).json({
+      success: true,
+      message: "User loggedout successfully",
+    });
+  } catch (err) {
+    console.log("Error in the logout user controller");
+    return res.status(500).json({
+      success: false,
+      message: "Server Error in loggedout user, please try again",
+    });
+  }
+};
