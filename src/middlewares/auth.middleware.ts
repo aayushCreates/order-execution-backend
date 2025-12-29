@@ -1,16 +1,15 @@
-import { Request, Response, NextFunction } from "express";
 import { validateToken } from "../utils/auth.utils";
 import { PrismaClient } from "../generated/client";
+import { FastifyReply, FastifyRequest } from "fastify";
 
 const prisma = new PrismaClient();
 
-export const isUserLoggedIn = async (req: Request, res: Response, next: NextFunction) => {
+export const isUserLoggedIn = async (req: FastifyRequest, reply: FastifyReply) => {
   try {
-    // const token = req.cookies.token;
     const authHeader = req.headers.authorization;
     const token = authHeader?.split(" ")[1];
     if (!token) {
-      return res.status(401).json({
+      return reply.status(401).send({
         success: false,
         message: "Invalid Token, please login",
       });
@@ -18,7 +17,7 @@ export const isUserLoggedIn = async (req: Request, res: Response, next: NextFunc
 
     const validToken = await validateToken(token);
     if (!validToken) {
-      return res.status(401).json({
+      return reply.status(401).send({
         success: false,
         message: "Session Expired, please login",
       });
@@ -29,16 +28,14 @@ export const isUserLoggedIn = async (req: Request, res: Response, next: NextFunc
     });
 
     if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: "User not found",
-      });
+      if (!user) {
+        return reply.status(401).send({ success: false, message: "Unauthorized" });
+      }
     }
 
     req.user = user;
-    next();
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ success: false, message: "Server error" });
+    return reply.status(401).send({ success: false, message: "Unauthorized" });
   }
 };
