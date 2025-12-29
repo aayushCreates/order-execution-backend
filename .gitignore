@@ -21,6 +21,9 @@ pnpm-debug.log*
 prisma/migrations/
 prisma/dev.db
 
+#generated
+src/generated
+
 # Redis / BullMQ
 dump.rdb
 
