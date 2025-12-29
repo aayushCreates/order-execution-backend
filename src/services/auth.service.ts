@@ -1,5 +1,5 @@
 import { getJWT, getPasswordHash, validatePassword } from "../utils/auth.utils";
-import { PrismaClient, User } from "../generated/client";
+import { PrismaClient, User } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export class AuthService {
