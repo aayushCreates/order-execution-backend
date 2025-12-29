@@ -1,26 +1,29 @@
-import express from 'express';
 import dotenv from 'dotenv';
-import cors from 'cors';
-import morgan from 'morgan';
-import orderRouter from './routes/order.routes';
-import authRouter from './routes/auth.routes';
+import cors from "@fastify/cors";
+import { orderRouter} from './routes/order.routes';
+import { authRouter } from './routes/auth.routes';
+import fastify from 'fastify';
 
-const app = express();
+const app = fastify({
+    logger: true
+});
 
 dotenv.config();
 
-app.use(express.json());
+app.register(cors, {
+    origin: ["http://localhost:3000", "http://localhost:3030"],
+  });
 
-app.use(cors({
-    origin: ["http://localhost:3000", "http://localhost:3030"]
-}));
 
-app.use(morgan("dev"));
+app.register(authRouter, { prefix: '/api/auth' });
+app.register(orderRouter, { prefix: '/api/orders' });
 
-app.use('/api/auth', authRouter);
-app.use('/api/orders', orderRouter);
+const port = Number(process.env.PORT) || 8080;
 
-const port = process.env.PORT || 8080;
-app.listen(port, ()=> {
-    console.log("Server is running on port " + port + "🚀");
+app.listen({ port }, (err, address) => {
+  if (err) {
+    app.log.error(err);
+    process.exit(1);
+  }
+  console.log(`🚀 Server running at ${address}`);
 });
