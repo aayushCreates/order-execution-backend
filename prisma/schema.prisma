@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrderStatus {
+  PENDING
+  ROUTING
+  BUILDING
+  SUBMITTED
+  CONFIRMED
+  FAILED
+}
+
+model User {
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
+  phone    String @unique
+  password String
+
+  order Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+}
+
+model Order {
+  id       String @id @default(uuid())
+  tokenIn  String
+  tokenOut String
+  amount   Float
+
+  status        OrderStatus @default(PENDING)
+  selectedDex   String?
+  executedPrice Float?
+  txHash        String?
+  errorReason   String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tokenIn, tokenOut])
+  @@index([status])
+}
