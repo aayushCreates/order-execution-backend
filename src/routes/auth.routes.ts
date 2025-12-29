@@ -1,11 +1,8 @@
-import { Router } from "express";
+import { FastifyInstance } from "fastify";
 import { login, logout, register } from "../controllers/auth.controller";
 
-const authRouter = Router();
-
-authRouter.post('/register', register);
-authRouter.post('/login', login);
-authRouter.post('/logout', logout);
-
-
-export default authRouter;
+export async function authRouter(fastify: FastifyInstance) {
+  fastify.post("/register", register);
+  fastify.post("/login", login);
+  fastify.post("/logout", logout);
+}

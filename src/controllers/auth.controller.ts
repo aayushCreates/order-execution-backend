@@ -1,16 +1,16 @@
-import { Request, Response, NextFunction } from "express";
+import { FastifyReply, FastifyRequest } from "fastify";
 import { AuthService } from "../services/auth.service";
 
-export const register = async (req: Request, res: Response, next: NextFunction) => {
+export const register = async (req: FastifyRequest, reply: FastifyReply) => {
   try {
-    const { name, email, phone, password } = req.body;
+    const { name, email, phone, password } = req.body as any;
     if (!name || !email || !phone || !password) {
-      return res.status(400).json({ success: false, message: "Missing required fields" });
+      return reply.status(400).send({ success: false, message: "Missing required fields" });
     }
 
     const { user, token } = await AuthService.registerUser({ name, email, phone, password });
 
-    res.status(201).json({
+    reply.status(201).send({
       success: true,
       message: "User registered successfully",
       data: {
@@ -23,20 +23,20 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     });
   } catch (err: any) {
     console.error("Register error:", err.message);
-    return res.status(500).json({ success: false, message: err.message || "Server error" });
+    return reply.status(500).send({ success: false, message: err.message || "Server error" });
   }
 };
 
-export const login = async (req: Request, res: Response, next: NextFunction) => {
+export const login = async (req: FastifyRequest, reply: FastifyReply) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body as any;
     if (!email || !password) {
-      return res.status(400).json({ success: false, message: "Missing required fields" });
+      return reply.status(400).send({ success: false, message: "Missing required fields" });
     }
 
     const { user, token } = await AuthService.loginUser({ email, password });
 
-    res.status(200).json({
+    reply.status(200).send({
       success: true,
       message: "User logged in successfully",
       data: {
@@ -49,15 +49,15 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     });
   } catch (err: any) {
     console.error("Login error:", err.message);
-    return res.status(400).json({ success: false, message: err.message || "Invalid credentials" });
+    return reply.status(400).send({ success: false, message: err.message || "Invalid credentials" });
   }
 };
 
-export const logout = async (_req: Request, res: Response, _next: NextFunction) => {
+export const logout = async (_req: FastifyRequest, reply: FastifyReply,) => {
   try {
-    res.status(200).json({ success: true, message: "User logged out successfully" });
+    reply.status(200).send({ success: true, message: "User logged out successfully" });
   } catch (err: any) {
     console.error("Logout error:", err.message);
-    res.status(500).json({ success: false, message: "Server error" });
+    reply.status(500).send({ success: false, message: "Server error" });
   }
 };
