@@ -6,8 +6,6 @@ import { orderRouter } from "./routes/order.routes";
 import { authRouter } from "./routes/auth.routes";
 import fastify from "fastify";
 import websocket from "@fastify/websocket";
-
-import "./workers/order.worker";
 import { wsRouter } from "./routes/ws.routes";
 
 const app = fastify({
