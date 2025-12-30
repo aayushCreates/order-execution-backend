@@ -1,5 +1,30 @@
+import { PrismaClient } from "@prisma/client";
 import { OrderService } from "../services/order.service";
 import { FastifyReply, FastifyRequest } from "fastify";
+
+const prisma = new PrismaClient();
+
+export const getOrder = async (req: FastifyRequest, reply: FastifyReply)=> {
+    try {
+        const { id } = req.params as any;
+
+        const order = await prisma.order.findUnique({
+          where: { id: id },
+        });
+      
+        if (!order) {
+          return reply.status(404).send({ message: "Order not found" });
+        }
+
+        return reply.status(200).send({
+            success: true,
+            message: "Order status got successfully",
+            data: order
+        });
+    }catch(err) {
+        console.log("Error in getting order", err);
+    }
+}
 
 export const placeOrder = async (req: FastifyRequest,
     reply: FastifyReply)=> {
@@ -15,11 +40,18 @@ export const placeOrder = async (req: FastifyRequest,
             });
         };
 
+        if(amount <= 0) {
+            return reply.status(400).send({
+                success: false,
+                message: "Invalid entered amount"
+        });
+        }
+
         const order = await OrderService.createOrder({
             tokenIn, tokenOut, amount, userId
         });
 
-        return reply.send({
+        return reply.status(200).send({
             success: true,
             message: "Order initiated successfully",
             data: {
@@ -32,3 +64,26 @@ export const placeOrder = async (req: FastifyRequest,
         console.log("Error in placing order", err);
     }      
 }
+
+export const getOrderStatus = async (req: FastifyRequest, reply: FastifyReply)=> {
+    try {
+        const { id } = req.params as any;
+
+        const order = await prisma.order.findUnique({
+          where: { id: id },
+        });
+      
+        if (!order) {
+          return reply.status(404).send({ message: "Order not found" });
+        }
+
+        return reply.status(200).send({
+            success: true,
+            message: "Order status got successfully",
+            data: order
+        });
+    }catch(err) {
+        console.log("Error in getting order status", err);
+    }
+}
+
