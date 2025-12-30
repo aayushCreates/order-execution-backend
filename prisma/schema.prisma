@@ -42,6 +42,7 @@ model Order {
   executedPrice Float?
   txHash        String?
   errorReason   String?
+  retryCount    Int         @default(0)
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

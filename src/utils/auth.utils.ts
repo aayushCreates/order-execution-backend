@@ -14,7 +14,10 @@ export const validatePassword = async (plainTextPassword: string, hashedPassword
 }
 
 export const getJWT = async (id: string, email: string)=> {
-    const secretKey = process.env.JWT_SECRET as string;
+    const secretKey = process.env.JWT_SECRET;
+    if (!secretKey) {
+        throw new Error("JWT_SECRET is not defined in environment variables");
+    }
     const jwtToken = jwt.sign({ id, email }, secretKey, { expiresIn: '7d' });
 
     return jwtToken;
