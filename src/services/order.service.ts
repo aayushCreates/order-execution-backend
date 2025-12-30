@@ -18,6 +18,12 @@ export class OrderService {
 
     await orderQueue.add("execute-order", {
         orderId: order.id,
+      }, {
+        attempts: 3,
+        backoff: {
+          type: "exponential",
+          delay: 5000,
+        }
       });
     
     return order;

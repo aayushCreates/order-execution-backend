@@ -34,5 +34,9 @@ export class WebSocketService {
         socketMap.delete(channel);
       }
     });
+    
+    socket.on("error", () => {
+      sockets.delete(socket);
+    });
   }
 }
