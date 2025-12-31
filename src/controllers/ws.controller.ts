@@ -14,7 +14,7 @@ export const getOrderInfo = async (
       return;
     }
 
-    WebSocketService.subscribeToOrder(socket, orderId);
+    await WebSocketService.subscribeToOrder(socket, orderId);
   } catch (err) {
     console.error("Server error in websocket controller", err);
     socket.close();

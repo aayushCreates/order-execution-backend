@@ -20,6 +20,7 @@ export class OrderService {
         orderId: order.id,
       }, {
         attempts: 3,
+        delay: 2000, // Give client time to connect
         backoff: {
           type: "exponential",
           delay: 5000,

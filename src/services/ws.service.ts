@@ -1,6 +1,8 @@
 import { WebSocket } from "@fastify/websocket";
 import { redisSub } from "../config/redis.config";
+import { PrismaClient } from "@prisma/client";
 
+const prisma = new PrismaClient();
 const socketMap = new Map<string, Set<WebSocket>>();
 
 redisSub.on("message", (channel, message) => {
@@ -13,10 +15,19 @@ redisSub.on("message", (channel, message) => {
 });
 
 export class WebSocketService {
-  static subscribeToOrder(socket: WebSocket, orderId: string) {
+  static async subscribeToOrder(socket: WebSocket, orderId: string) {
     const channel = `order:${orderId}`;
 
     console.log(`🔌 WS connected for order: ${orderId}`);
+
+    // Send current status immediately
+    const order = await prisma.order.findUnique({
+        where: { id: orderId }
+    });
+
+    if(order) {
+        socket.send(JSON.stringify({ status: order.status, ...order }));
+    }
 
     if (!socketMap.has(channel)) {
       socketMap.set(channel, new Set());
